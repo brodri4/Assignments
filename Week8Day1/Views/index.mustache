@@ -1,0 +1,32 @@
+<h1>Posts</h1>
+
+<ul>
+{{#blogs}}
+
+    <li>
+    
+        <label>{{title}}</label>
+        <p> {{body}} <p>
+    <form method="POST" action="/update-post">
+        <input type="hidden" value={{post_id}} name="postID" />
+        <button>Update</button>
+    </form>
+    <form method="POST" action="/delete-post">
+        <input type="hidden" value={{post_id}} name="postID" />
+        <button>Delete</button>
+     </form>
+    </li>
+
+
+{{/blogs}}
+</ul>
+
+
+<h2>Create A New Post</h2>
+<form method="POST" action="/create-post">
+ <input type="text" placeholder="Title" name="title" />
+ <p></p>
+ <input type="text" placeholder="Body" name="body" id="postBody"/>
+ <p> </p>
+ <button>Save</button>
+</form>
