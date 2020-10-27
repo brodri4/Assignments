@@ -7,11 +7,11 @@
     
         <label>{{title}}</label>
         <p> {{body}} <p>
-    <form method="POST" action="/update-post">
+    <form method="POST" action="/posts/update-post">
         <input type="hidden" value={{post_id}} name="postID" />
         <button>Update</button>
     </form>
-    <form method="POST" action="/delete-post">
+    <form method="POST" action="/posts/delete-post">
         <input type="hidden" value={{post_id}} name="postID" />
         <button>Delete</button>
      </form>
@@ -23,10 +23,10 @@
 
 
 <h2>Create A New Post</h2>
-<form method="POST" action="/create-post">
+<form method="POST" action="/posts/create-post">
  <input type="text" placeholder="Title" name="title" />
  <p></p>
- <input type="text" placeholder="Body" name="body" id="postBody"/>
+ <input type="text" placeholder="Body" name="body"/>
  <p> </p>
  <button>Save</button>
 </form>

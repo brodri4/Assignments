@@ -1,6 +1,9 @@
 const express = require('express')
 const app = express()
+const session = require('express-session')
 const pgp = require('pg-promise')()
+const postsRouter = require('./routes/posts')
+var bcrypt = require('bcryptjs');
 const mustacheExpress = require('mustache-express')
 
 const connectionString = 'postgres://localhost:5432/mydatabase'
@@ -8,58 +11,98 @@ const db = pgp(connectionString)
 
 
 app.use(express.urlencoded())
+app.use(session({
+    secret: 'SPONGEBOB',
+    resave: false,
+    saveUninitialized: true
+}))
+app.use('/posts',authenticate,postsRouter)
 app.engine('mustache',mustacheExpress())
 app.set('views','./views')
 app.set('view engine','mustache')
 
-app.get('/',(req,res) => {
-    db.any('SELECT * FROM blogs;')
-    .then(blogs => {
-        res.render('index',{blogs: blogs})
-    })
+
+
+app.get('/register', (req,res) => {
+    res.render('register')
 })
 
-app.post('/delete-post',(req,res) => {
+app.get('/login', (req,res) => {
+    res.render('login')
+})
 
-    const postID = req.body.postID
-    console.log(postID)
-    db.none('DELETE FROM blogs WHERE post_id = $1;',[postID])
-        .then(() => {
-            res.redirect('/')
+
+
+
+
+
+
+
+app.post('/login', (req,res) => {
+    const username = req.body.username
+    const password = req.body.password
+    db.any('SELECT username, password FROM users')
+    .then((users)=>{
+        console.log(users)
+        const persistedUser = users.find(user => {
+            return user.username == username
         })
-
+        console.log(persistedUser)
+        if (persistedUser) {
+            bcrypt.compare(password, persistedUser.password, function (err, result) {
+                if (result) {
+                    req.session.username = username
+                    res.redirect('/posts')
+                }
+                else{
+                    res.render('login',{message: 'Password do not match'})
+                }
+            })
+        }
+        else{
+            res.render('login',{message: 'Username does not exist'})
+        }
+    })
 })
 
-app.post('/create-post',(req,res) => {
+app.post('/register',(req,res) => {
 
-    const title = req.body.title 
-    const body = req.body.body 
-
-    db.none('INSERT INTO blogs(title, body) VALUES($1,$2)',[title, body])
-    .then(() => {
-        res.redirect('/')
+    const username = req.body.username 
+    const password = req.body.password 
+    db.any('SELECT username FROM users')
+    .then((users)=>{
+        const dupeUser = users.find(user => {
+            return user.username == username
+        })
+        if(dupeUser) {
+            res.render('register', {message: 'Username is already taken'})
+        }
+        else{
+            bcrypt.genSalt(10, function(err, salt){ 
+                bcrypt.hash(password, salt, function(err, hash){ 
+                    db.none('INSERT INTO users(username, password) VALUES($1,$2)',[username, hash])
+                    .then(() => {
+                        res.redirect('/login')
+                    
+                    })
+                })
+            })
+        }    
     })
-
-})  
-
-app.post('/update-post',(req,res) => {
-    const postID = req.body.postID
-        res.render('update',{postID: postID})
 })
 
-app.post('/update-post/confirm',(req,res) => {
 
-    const title = req.body.title 
-    const body = req.body.body 
-    const postID = req.body.postID
-    const current_time = new Date()
-    //Don't know update formatting
-    db.none(`UPDATE blogs SET title=${title}, body=${body}, date_updated=${current_time} WHERE post_id=${postID};`)
-    .then(() => {
-        res.redirect('/')
-    })
-
-})  
+function authenticate(req,res,next) {
+    if(req.session) {
+        if(req.session.username) {
+            next()                                     
+        } else {
+            res.redirect('/login')
+        }
+    } else {
+        res.redirect('/login')
+    }
+}
 
 app.listen(3000, () => {
     console.log('Server is running...')
