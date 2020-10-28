@@ -1,0 +1,13 @@
+<h2>Update Post</h2>
+<form method="POST" action="/update-confirm">
+ <input type="text" value={{title}} name="title"/>
+ <p> </p>
+ <input type="text" value={{body}} name="body"/>
+ <p> </p>
+ <input type="text" value={{category}} name="category"/>
+ <p> </p>
+ 
+ <input type="hidden" value={{postID}} name="postID" />
+ <p> </p>
+ <button>Update</button>
+</form>

@@ -1,0 +1,41 @@
+<h1>Blog Posts</h1>
+
+<ul>
+{{#posts}}
+    <li>
+     <b>{{title}}</b>
+     <p>{{body}}</p>
+     <p>{{category}}</p>
+    <form method="POST" action="/posts/update-post">
+        <input type="hidden" value={{title}} name="title" />
+        <input type="hidden" value={{body}} name="body" />
+        <input type="hidden" value={{category}} name="category" />
+        <input type="hidden" value={{id}} name="postID" />
+        <button>Update</button>
+    </form>
+    <form method="POST" action="/posts/delete-post">
+        <input type="hidden" value={{id}} name="postID" />
+        <button>Delete</button>
+     </form>
+    </li>
+
+{{/posts}}
+</ul>
+
+<h2>Filter<h2>
+ <form method="POST" action="/posts/filter">
+ <input type="text" placeholder="Example: DC Comics" name="category"/>
+ <p> </p>
+ <button>Search</button>
+</form>
+
+<h2>Create A New Post</h2>
+<form method="POST" action="/posts/create-post">
+ <input type="text" placeholder="Title" name="title" />
+ <p></p>
+ <input type="text" placeholder="Body" name="body"/>
+ <p> </p>
+ <input type="text" placeholder="Category" name="category"/>
+ <p> </p>
+ <button>Save</button>
+</form>
